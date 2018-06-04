@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.PermissionChecker;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,10 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 
 /**
@@ -35,7 +41,7 @@ public class FragmentSecond extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.fragment_second, container,false);
+        final View view = inflater.inflate(R.layout.fragment_second, container, false);
         etFrag2 = (EditText) view.findViewById(R.id.etFrag2);
         btFrag2 = (Button) view.findViewById(R.id.btnFrag2);
         tvFrag2 = (TextView) view.findViewById(R.id.tvFrag2);
@@ -63,29 +69,42 @@ public class FragmentSecond extends Fragment {
                 //Get the word to filter
                 int selectedButtonId = rg.getCheckedRadioButtonId();
                 RadioButton rb = (RadioButton) view.findViewById(selectedButtonId);
-                String[] str = {};
-                if( rb.getText() == "Phrase"){
-                    str[0] = etFrag2.getText().toString().trim();
-                }else{
+
+                String[] str;
+                ArrayList<String> wordArray  = new ArrayList<>();
+                if (rb.getText().equals("Phrase")) {
+                    wordArray.add(etFrag2.getText().toString().trim());
+                    Log.e("here", "here");
+                } else {
                     str = etFrag2.getText().toString().trim().split(" ");
+                    wordArray.addAll(Arrays.asList(str));
+                    for(int i = 0; i < str.length;i++){
+                        if(str[i].length() == 0){
+                            wordArray.remove(str[i]);
+                        }
+                    }
                 }
 
                 String filter = "";
                 String filterString = "";
-                String[] filterArgs = new String[str.length];
 
-                for(int i =0;i < str.length;i++){
-                    if(i != 0){
+                String[] filterArgs = new String[wordArray.size()];
+
+                for (int i = 0; i < wordArray.size(); i++) {
+                    if (i != 0) {
                         filter += " OR ";
                     }
                     filter += "body LIKE ?";
-                    filterString = "%"+str[i]+"%";
-                    // The matches for the ?
-                    filterArgs[i] = filterString;
-                    // Fetch SMS Message from Built-in Content Provider
+                        filterString = "%" + wordArray.get(i) + "%";
+                        // The matches for the ?
+                        filterArgs[i] = filterString;
+                        // Fetch SMS Message from Built-in Content Provider
                 }
 
+
                 Cursor cursor = cr.query(uri, reqCols, filter, filterArgs, null);
+
+
 
                 String smsBody = "";
                 if (cursor.moveToFirst()) {
