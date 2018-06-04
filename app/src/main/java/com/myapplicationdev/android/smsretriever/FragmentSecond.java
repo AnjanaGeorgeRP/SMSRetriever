@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,15 +35,16 @@ public class FragmentSecond extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_second, container,false);
+        final View view = inflater.inflate(R.layout.fragment_second, container,false);
         etFrag2 = (EditText) view.findViewById(R.id.etFrag2);
         btFrag2 = (Button) view.findViewById(R.id.btnFrag2);
         tvFrag2 = (TextView) view.findViewById(R.id.tvFrag2);
 
+        final RadioGroup rg = (RadioGroup) view.findViewById(R.id.rg);
+
         btFrag2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //permission
                 int permissionCheck = PermissionChecker.checkSelfPermission
                         (getContext(), Manifest.permission.READ_SMS);
@@ -57,14 +60,30 @@ public class FragmentSecond extends Fragment {
 
                 ContentResolver cr = getActivity().getContentResolver();
 
-                // The filter String
-                String filter = "body LIKE ?";
                 //Get the word to filter
-                String str = etFrag2.getText().toString().trim();
-                String filterString = "%"+str+"%";
-                // The matches for the ?
-                String[] filterArgs = {filterString};
-                // Fetch SMS Message from Built-in Content Provider
+                int selectedButtonId = rg.getCheckedRadioButtonId();
+                RadioButton rb = (RadioButton) view.findViewById(selectedButtonId);
+                String[] str = {};
+                if( rb.getText() == "Phrase"){
+                    str[0] = etFrag2.getText().toString().trim();
+                }else{
+                    str = etFrag2.getText().toString().trim().split(" ");
+                }
+
+                String filter = "";
+                String filterString = "";
+                String[] filterArgs = new String[str.length];
+
+                for(int i =0;i < str.length;i++){
+                    if(i != 0){
+                        filter += " OR ";
+                    }
+                    filter += "body LIKE ?";
+                    filterString = "%"+str[i]+"%";
+                    // The matches for the ?
+                    filterArgs[i] = filterString;
+                    // Fetch SMS Message from Built-in Content Provider
+                }
 
                 Cursor cursor = cr.query(uri, reqCols, filter, filterArgs, null);
 

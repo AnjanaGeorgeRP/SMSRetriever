@@ -16,6 +16,25 @@
             android:layout_height="wrap_content"
             android:text="Only SMS containing this number" />
 
+        <RadioGroup
+            android:id="@+id/rg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/rbphrase"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="Phrase" />
+            <RadioButton
+                android:id="@+id/rgword"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Word"/>
+        </RadioGroup>
+
         <EditText
             android:id="@+id/etFrag2"
             android:layout_width="match_parent"
