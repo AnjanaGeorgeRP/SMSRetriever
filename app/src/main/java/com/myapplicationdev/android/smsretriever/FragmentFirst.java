@@ -3,6 +3,7 @@ package com.myapplicationdev.android.smsretriever;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -24,8 +25,10 @@ import android.widget.TextView;
 public class FragmentFirst extends Fragment {
 
     EditText etFrag1;
-    Button btFrag1;
+    Button btFrag1, btnEmailFrag1;
     TextView tvFrag1;
+
+    String smsContent = "";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -35,8 +38,20 @@ public class FragmentFirst extends Fragment {
 
         etFrag1 = (EditText) view.findViewById(R.id.etFrag1);
         btFrag1 = (Button) view.findViewById(R.id.btnFrag1);
+        btnEmailFrag1 = (Button) view.findViewById(R.id.btnEmailFrag1);
         tvFrag1 = (TextView) view.findViewById(R.id.tvFrag1);
 
+        btnEmailFrag1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent email = new Intent(Intent.ACTION_SEND);
+                email.putExtra(Intent.EXTRA_EMAIL, new String[]{"jason_lim@rp.edu.sg"});
+                email.putExtra(Intent.EXTRA_SUBJECT, "Email SMS Content from C347");
+                email.putExtra(Intent.EXTRA_TEXT, smsContent);
+                email.setType("message/rfc822");
+                startActivity(Intent.createChooser(email, "Choose an Email client :"));
+            }
+        });
 
         btFrag1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,6 +86,7 @@ public class FragmentFirst extends Fragment {
                 Cursor cursor = cr.query(uri, reqCols, filter, filterArgs, null);
 
                 String smsBody = "";
+                smsContent = "";
                 if (cursor.moveToFirst()) {
                     do {
                         long dateInMillis = cursor.getLong(0);
@@ -84,6 +100,7 @@ public class FragmentFirst extends Fragment {
                         } else {
                             type = "Sent:";
                         }
+                        smsContent += body + "\n\n";
                         smsBody += type + " " + address + "\n at " + date
                                 + "\n\"" + body + "\"\n\n";
                     } while (cursor.moveToNext());
